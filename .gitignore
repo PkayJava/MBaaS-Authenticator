@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+=======
 # Built application files
 *.apk
 *.ap_
@@ -30,3 +40,4 @@ proguard/
 
 # Android Studio captures folder
 captures/
+>>>>>>> 5a03546d21f4a397ee2d34d2bcbfca211e36d1b6
