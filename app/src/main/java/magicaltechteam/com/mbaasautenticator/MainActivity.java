@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
     public void onResume() {
         super.onResume();
         mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
-        mScannerView.startCamera();          // Start camera on resume
+        mScannerView.startCamera();
     }
 
     @Override
