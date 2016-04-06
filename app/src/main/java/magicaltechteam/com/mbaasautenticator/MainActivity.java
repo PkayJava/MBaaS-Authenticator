@@ -1,15 +1,21 @@
 package magicaltechteam.com.mbaasautenticator;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.google.zxing.Result;
 
-import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import org.apache.commons.lang3.StringUtils;
 
-public class MainActivity extends ActionBarActivity implements ZXingScannerView.ResultHandler{
+import magicaltechteam.com.mbaasautenticator.request.OtpRequest;
+import magicaltechteam.com.mbaasautenticator.response.OtpResponse;
+import magicaltechteam.com.mbaasautenticator.security.otp.Totp;
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import retrofit2.*;
+
+public class MainActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, Callback<OtpResponse> {
 
     private final String TAG = "MainActivity";
     private ZXingScannerView mScannerView;
@@ -35,12 +41,31 @@ public class MainActivity extends ActionBarActivity implements ZXingScannerView.
     }
 
     @Override
-    public void handleResult(Result rawResult) {
-        // Do something with the result here
-        Log.v(TAG, rawResult.getText()); // Prints scan results
-        Log.v(TAG, rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
+    public void handleResult(Result result) {
+        String texts[] = StringUtils.split(result.getText(), "||");
+        String secret = texts[0];
+        String hash = texts[1];
+        Totp totp = new Totp(hash);
+        Application application = (Application) getApplication();
+        OtpRequest request = new OtpRequest();
+        request.setSecret(secret);
+        request.setOtp(totp.now());
+        Call<OtpResponse> call = application.getClient().otp(request);
+        call.enqueue(this);
+    }
 
-        // If you would like to resume scanning, call this method below:
-        mScannerView.resumeCameraPreview(this);
+    @Override
+    public void onResponse(Call<OtpResponse> call, retrofit2.Response<OtpResponse> response) {
+        Application application = (Application) getApplication();
+        Gson gson = application.getGson();
+        String hash = response.body().getData().getHash();
+        Log.i("GSON", hash);
+    }
+
+    @Override
+    public void onFailure(Call<OtpResponse> call, Throwable t) {
+        Application application = (Application) getApplication();
+        Gson gson = application.getGson();
+        Log.i("GSON", t.getMessage());
     }
 }
