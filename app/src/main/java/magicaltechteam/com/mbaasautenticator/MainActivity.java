@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,7 +20,7 @@ import magicaltechteam.com.mbaasautenticator.security.otp.Totp;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import retrofit2.*;
 
-public class MainActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, Callback<OtpResponse> {
+public class MainActivity extends ActionBarActivity implements ZXingScannerView.ResultHandler, Callback<OtpResponse> {
 
     private final String TAG = "MainActivity";
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         String texts[] = StringUtils.split(result.getText(), "||");
         secret = texts[0];
         hash = texts[1];
-        
+
         Totp totp = new Totp(hash);
         Application application = (Application) getApplication();
         OtpRequest request = new OtpRequest();
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         Gson gson = application.getGson();
         key = response.body().getData().getHash();
 
-        if(!key.equals("") && key !=null){
+        if(response.body().getHttpCode()==200){
             Log.i("key", key);
             Log.i("hash", hash);
             Log.i("secret", secret);
@@ -112,7 +113,16 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
             finish();
         }
         else{
-            Toast.makeText(MainActivity.this, "QR Code is expired", Toast.LENGTH_SHORT).show();
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "QR Code is expired", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+
         }
     }
 
