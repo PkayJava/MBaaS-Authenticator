@@ -78,9 +78,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         String texts[] = StringUtils.split(result.getText(), "||");
         secret = texts[0];
         hash = texts[1];
-
-        Log.i("hash //////////////", hash);
-
+        
         Totp totp = new Totp(hash);
         Application application = (Application) getApplication();
         OtpRequest request = new OtpRequest();
